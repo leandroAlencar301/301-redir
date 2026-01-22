@@ -4,12 +4,6 @@
   <meta charset="UTF-8">
   <title>Redirecionando...</title>
   <script type="module">
-    import { createClient } from "https://cdn.jsdelivr.net/npm/@supabase/supabase-js/+esm";
-
-    const supabaseUrl = "https://pafjkmdrklurnptcgbbu.supabase.co";
-    const supabaseKey = "sb_publishable_9AOxxu0qX4u7WKHqXlb6OQ_kYVETqsN";
-    const supabase = createClient(supabaseUrl, supabaseKey);
-
     async function logAcessoERedireciona() {
       const dados = {
         tz: Intl.DateTimeFormat().resolvedOptions().timeZone,
@@ -30,13 +24,19 @@
         console.warn("Falha ao obter IP/localização", err);
       }
 
-      // Insere no Supabase
-      await supabase
-        .from("access_logs")
-        .insert(dados);
+      // Insere no banco de dados Neon via Netlify Function
+      try {
+        await fetch("/api/log-access", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(dados)
+        });
+      } catch (err) {
+        console.warn("Falha ao registrar acesso", err);
+      }
 
       // Redireciona
-     const sites = [
+      const sites = [
         "https://www.instagram.com/lopzthegodless/",
         "https://www.instagram.com/_jobins_/",
         "https://www.instagram.com/thomazrds/"
