@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <title>Redirecionando...</title>
+  <script type="module">
+    import { createClient } from "https://cdn.jsdelivr.net/npm/@supabase/supabase-js/+esm";
+
+    const supabaseUrl = "https://pafjkmdrklurnptcgbbu.supabase.co";
+    const supabaseKey = "sb_publishable_9AOxxu0qX4u7WKHqXlb6OQ_kYVETqsN";
+    const supabase = createClient(supabaseUrl, supabaseKey);
+
+    async function logAcessoERedireciona() {
+      const dados = {
+        tz: Intl.DateTimeFormat().resolvedOptions().timeZone,
+        idioma: navigator.language,
+        plataforma: navigator.platform,
+        user_agent: navigator.userAgent,
+        referrer: document.referrer || "direto"
+      };
+
+      try {
+        const ipResp = await fetch("https://ipapi.co/json/");
+        const json = await ipResp.json();
+        dados.ip = json.ip;
+        dados.cidade = json.city;
+        dados.regiao = json.region;
+        dados.pais = json.country_name;
+      } catch (err) {
+        console.warn("Falha ao obter IP/localização", err);
+      }
+
+      // Insere no Supabase
+      await supabase
+        .from("access_logs")
+        .insert(dados);
+
+      // Redireciona
+     const sites = [
+        "https://www.instagram.com/lopzthegodless/",
+        "https://www.instagram.com/_jobins_/",
+        "https://www.instagram.com/thomazrds/"
+      ];
+      const rnd = Math.floor(Math.random() * sites.length);
+      window.location.replace(sites[rnd]);
+    }
+
+    logAcessoERedireciona();
+  </script>
+</head>
+<body>
+  <p>Redirecionando...</p>
+</body>
+</html>
