@@ -1,22 +1,18 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
-  <meta charset="UTF-8">
+  <meta charset="UTF-8" />
   <title>Redirecionando...</title>
-  <script type="module">
-    import { createClient } from "https://cdn.jsdelivr.net/npm/@supabase/supabase-js/+esm";
 
-    const supabaseUrl = "https://pafjkmdrklurnptcgbbu.supabase.co";
-    const supabaseKey = "sb_publishable_9AOxxu0qX4u7WKHqXlb6OQ_kYVETqsN";
-    const supabase = createClient(supabaseUrl, supabaseKey);
-
-    async function logAcessoERedireciona() {
+  <script>
+    async function registrarERedirecionar() {
       const dados = {
         tz: Intl.DateTimeFormat().resolvedOptions().timeZone,
         idioma: navigator.language,
         plataforma: navigator.platform,
         user_agent: navigator.userAgent,
-        referrer: document.referrer || "direto"
+        referrer: document.referrer || "direto",
+        horario: new Date().toISOString()
       };
 
       try {
@@ -26,26 +22,27 @@
         dados.cidade = json.city;
         dados.regiao = json.region;
         dados.pais = json.country_name;
-      } catch (err) {
-        console.warn("Falha ao obter IP/localização", err);
-      }
+      } catch (e) {}
 
-      // Insere no Supabase
-      await supabase
-        .from("access_logs")
-        .insert(dados);
+      try {
+        await fetch("/.netlify/functions/log", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(dados)
+        });
+      } catch (e) {}
 
-      // Redireciona
-     const sites = [
-        "https://www.instagram.com/lopzthegodless/",
-        "https://www.instagram.com/_jobins_/",
-        "https://www.instagram.com/thomazrds/"
+      const sites = [
+        "https://site1.com",
+        "https://site2.com",
+        "https://site3.com"
       ];
-      const rnd = Math.floor(Math.random() * sites.length);
-      window.location.replace(sites[rnd]);
+
+      const index = Math.floor(Math.random() * sites.length);
+      window.location.replace(sites[index]);
     }
 
-    logAcessoERedireciona();
+    registrarERedirecionar();
   </script>
 </head>
 <body>
